@@ -132,6 +132,9 @@ body {
   line-height: 1.85;
 }
 .wp-prose > * + * { margin-top: 1.25em; }
+.wp-prose [id], .wp-prose a[name] { scroll-margin-top: 8rem; }
+.wp-prose :target { background: color-mix(in oklab, var(--color-gold-soft) 45%, transparent); border-radius: 0.25rem; }
+.wp-prose sup a { text-decoration: none; font-weight: 600; padding: 0 0.1em; }
 .wp-prose h2, .wp-prose h3, .wp-prose h4 {
   font-family: var(--font-display);
   color: var(--color-maroon);

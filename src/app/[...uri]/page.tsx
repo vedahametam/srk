@@ -14,6 +14,8 @@ const resolve = cache(async (key: string) => {
   if (!route) return null;
 
   switch (route.kind) {
+    case "redirect":
+      return route;
     case "post": {
       const post = await getPostBySlug(route.slug);
       if (!post) return null;
@@ -72,7 +74,7 @@ export async function generateMetadata({ params }: PageProps<"/[...uri]">): Prom
     case "date":
       return { title: `Archive: ${dateLabel(r.year, r.month, r.day)}`, robots: { index: false, follow: true } };
     case "postsIndex":
-      return { title: r.page > 1 ? `Articles — page ${r.page}` : "Articles", alternates: { canonical: site.postsIndexPath } };
+      return { title: r.page > 1 ? `Articles — page ${r.page}` : "Articles", alternates: { canonical: site.postsIndexPath ?? undefined } };
   }
 }
 
@@ -99,7 +101,7 @@ export default async function CatchAll({ params }: PageProps<"/[...uri]">) {
           title="Articles"
           description="Reflections, episodes and teachings from the life of Sri Ramakrishna and his circle."
           result={r.result}
-          base={site.postsIndexPath}
+          base={site.postsIndexPath ?? "/"}
           page={r.page}
         />
       );

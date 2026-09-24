@@ -12,6 +12,8 @@ type Props = {
   tone?: "light" | "dark";
   /** Where the placeholder label sits; use "top" when a caption overlays the bottom. */
   labelAt?: "top" | "bottom";
+  /** Purely ornamental: no "placeholder" label (e.g. posts that simply have no image). */
+  decorative?: boolean;
 };
 
 /** A curated image, or an ornamental placeholder naming what belongs there. */
@@ -23,11 +25,20 @@ export function SacredImage({
   priority,
   tone = "light",
   labelAt = "bottom",
+  decorative,
 }: Props) {
   if (slot.src) {
     return (
-      <div className={`relative overflow-hidden ${aspect} ${className}`}>
-        <Image src={slot.src} alt={slot.alt} fill sizes={sizes} priority={priority} className="object-cover" />
+      <div className={`relative overflow-hidden ${aspect} ${className} ${slot.fit === "contain" ? "bg-white" : ""}`}>
+        <Image
+          src={slot.src}
+          alt={slot.alt}
+          fill
+          sizes={sizes}
+          priority={priority}
+          className={slot.fit === "contain" ? "object-contain p-2" : "object-cover"}
+          style={slot.position ? { objectPosition: slot.position } : undefined}
+        />
       </div>
     );
   }
@@ -35,8 +46,9 @@ export function SacredImage({
   const dark = tone === "dark";
   return (
     <div
-      role="img"
-      aria-label={`${slot.alt} (image coming soon)`}
+      role={decorative ? undefined : "img"}
+      aria-label={decorative ? undefined : `${slot.alt} (image coming soon)`}
+      aria-hidden={decorative || undefined}
       className={`relative isolate flex ${labelAt === "top" ? "items-start pt-10" : "items-end"} justify-center overflow-hidden ${aspect} ${className} ${
         dark
           ? "bg-[radial-gradient(ellipse_at_50%_35%,#7a2a18,#3a0d0b_70%)] text-gold-soft"
@@ -45,13 +57,15 @@ export function SacredImage({
     >
       <Mandala className={`absolute left-1/2 top-[42%] w-[130%] max-w-none -translate-x-1/2 -translate-y-1/2 ${dark ? "opacity-25" : "opacity-20"}`} />
       <span className="absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2 font-deva text-6xl opacity-40">ॐ</span>
-      <span
-        className={`relative z-10 m-4 rounded-full border px-4 py-1.5 text-center text-xs tracking-wide ${
-          dark ? "border-gold/40 bg-black/25" : "border-maroon/20 bg-ivory/70"
-        }`}
-      >
-        Image placeholder · {slot.label}
-      </span>
+      {!decorative && (
+        <span
+          className={`relative z-10 m-4 rounded-full border px-4 py-1.5 text-center text-xs tracking-wide ${
+            dark ? "border-gold/40 bg-black/25" : "border-maroon/20 bg-ivory/70"
+          }`}
+        >
+          Image placeholder · {slot.label}
+        </span>
+      )}
     </div>
   );
 }

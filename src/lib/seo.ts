@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { featuredImage, plainText, relativeUrl, toPath } from "./wp/content";
+import { assetUrl, featuredImage, plainText, relativeUrl, toPath } from "./wp/content";
 import type { WPEntry } from "./wp/types";
 import { site } from "./site";
 
@@ -25,7 +25,7 @@ export function entryMetadata(entry: WPEntry): Metadata {
       title: y?.og_title ?? plainText(entry.title.rendered),
       description: y?.og_description ?? description,
       url: canonical,
-      images: image ? [relativeUrl(image)] : undefined,
+      images: image ? [assetUrl(image)] : undefined,
       ...(entry.type === "post" ? { publishedTime: entry.date, modifiedTime: entry.modified } : {}),
     },
   };

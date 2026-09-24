@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
+import { BookView } from "@/components/BookViews";
 import { ArchiveView } from "@/components/views";
+import { findBook, getBookToc } from "@/lib/wp/books";
 import { safeDecode, splitPagination } from "@/lib/routing";
 import { getCategoryBySlug, getPosts } from "@/lib/wp/client";
 import { plainText, toPath } from "@/lib/wp/content";
@@ -12,9 +14,14 @@ const load = cache(async (key: string) => {
   if (!split || split.segments.length === 0) return null;
   const term = await getCategoryBySlug(split.segments[split.segments.length - 1]);
   if (!term || toPath(term.link) !== `/category/${split.segments.join("/")}/`) return null;
+  const book = await findBook([term.id]);
+  if (book) {
+    // Books show their whole table of contents on one page.
+    return { term, page: split.page, toc: await getBookToc(book), result: null };
+  }
   const result = await getPosts({ category: term.id, page: split.page });
   if (split.page > 1 && result.items.length === 0) return null;
-  return { term, result, page: split.page };
+  return { term, result, page: split.page, toc: null };
 });
 
 // Rendered on first request, then cached and refreshed in the background (ISR).
@@ -36,11 +43,17 @@ export async function generateMetadata({ params }: PageProps<"/category/[...slug
 export default async function CategoryArchive({ params }: PageProps<"/category/[...slug]">) {
   const data = await load((await params).slug.join("/"));
   if (!data) notFound();
+  const description = data.term.description ? plainText(data.term.description) : undefined;
+  if (data.toc) {
+    if (data.page > 1) permanentRedirect(toPath(data.term.link));
+    const isPart = data.toc.book.id !== data.term.id;
+    return <BookView toc={data.toc} current={isPart ? data.term : undefined} description={description} />;
+  }
   return (
     <ArchiveView
       eyebrow="Category"
       title={data.term.name}
-      description={data.term.description ? plainText(data.term.description) : undefined}
+      description={description}
       result={data.result}
       base={toPath(data.term.link)}
       page={data.page}

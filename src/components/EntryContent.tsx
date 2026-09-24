@@ -1,15 +1,36 @@
 import { getElementorStyles } from "@/lib/wp/client";
-import { isElementor, rewriteContentLinks } from "@/lib/wp/content";
+import { isElementor, localizeFootnotes, rewriteContentLinks } from "@/lib/wp/content";
+import { simplifyElementor, stripDeadShortcodes } from "@/lib/wp/elementor";
 import type { WPEntry } from "@/lib/wp/types";
 
-/**
- * Renders WordPress HTML. Classic/Gutenberg content gets the site's reading
- * typography; Elementor content keeps its own layout and stylesheets.
- */
-export async function EntryContent({ entry, dropCap }: { entry: WPEntry; dropCap?: boolean }) {
-  const html = rewriteContentLinks(entry.content.rendered);
+export type PreparedContent = { html: string; mode: "prose" | "elementor" };
 
+/**
+ * Cleans WordPress HTML for display. Simple Elementor layouts are flattened
+ * into prose so they take the site's design; complex ones keep Elementor.
+ */
+export function prepareContent(entry: WPEntry): PreparedContent {
+  let html = entry.content.rendered;
+  let mode: PreparedContent["mode"] = "prose";
   if (isElementor(entry)) {
+    const simple = simplifyElementor(html);
+    if (simple === null) mode = "elementor";
+    else html = simple;
+  }
+  html = localizeFootnotes(rewriteContentLinks(stripDeadShortcodes(html)));
+  return { html, mode };
+}
+
+export async function EntryContent({
+  entry,
+  content = prepareContent(entry),
+  dropCap,
+}: {
+  entry: WPEntry;
+  content?: PreparedContent;
+  dropCap?: boolean;
+}) {
+  if (content.mode === "elementor") {
     const { links, inline } = await getElementorStyles(entry);
     return (
       <>
@@ -22,7 +43,7 @@ export async function EntryContent({ entry, dropCap }: { entry: WPEntry; dropCap
             {css}
           </style>
         ))}
-        <div className="elementor-host" dangerouslySetInnerHTML={{ __html: html }} />
+        <div className="elementor-host" dangerouslySetInnerHTML={{ __html: content.html }} />
       </>
     );
   }
@@ -30,7 +51,7 @@ export async function EntryContent({ entry, dropCap }: { entry: WPEntry; dropCap
   return (
     <div
       className={`wp-prose mx-auto max-w-3xl px-4 sm:px-6 ${dropCap ? "drop-cap" : ""}`}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: content.html }}
     />
   );
 }

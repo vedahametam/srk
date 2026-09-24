@@ -19,15 +19,41 @@ export function relativeUrl(value: string): string {
   return out === "" ? "/" : out;
 }
 
+/** Where uploads are served from: the WordPress origin (the live site until the cut-over). */
+const assetOrigin = (process.env.WORDPRESS_URL || "https://sriramakrishna.in").replace(/\/$/, "");
+
+/** Absolute URL for a WordPress asset, whichever origin it was stored with. */
+export function assetUrl(url: string): string {
+  const rel = relativeUrl(url);
+  return rel.startsWith("/") ? `${assetOrigin}${rel}` : rel;
+}
+
 const attrRe = /(\s(?:href|src|srcset|data-src|data-srcset|poster|style)=)(["'])([\s\S]*?)\2/gi;
 
 /**
- * Makes links in WordPress HTML relative so they stay on this site. Uploads
- * keep working because /wp-content is proxied to WordPress in next.config.ts.
+ * Makes page links in WordPress HTML relative so they stay on this site, and
+ * points uploads (images, PDFs) straight at WordPress rather than through this app.
  */
 export function rewriteContentLinks(html: string): string {
   if (!originRe) return html;
-  return html.replace(attrRe, (_, attr: string, q: string, value: string) => `${attr}${q}${relativeUrl(value)}${q}`);
+  return html.replace(attrRe, (_, attr: string, q: string, value: string) => {
+    const v = relativeUrl(value).replace(/(^|[\s,(])(\/wp-(?:content|includes)\/)/g, `$1${assetOrigin}$2`);
+    return `${attr}${q}${v}${q}`;
+  });
+}
+
+/**
+ * Many book chapters were imported with footnote links still pointing at the
+ * source website (e.g. "http://www.greatmaster.info/…html#bookmark19"), even
+ * though the note itself is on the same page. Point those at the local anchor.
+ */
+export function localizeFootnotes(html: string): string {
+  const anchors = new Set<string>();
+  for (const m of html.matchAll(/\s(?:id|name)=["']([^"']+)["']/g)) anchors.add(m[1]);
+  if (anchors.size === 0) return html;
+  return html.replace(/(<a\b[^>]*?\shref=)(["'])https?:\/\/[^"'#]+#([^"']+)\2/gi, (full, start: string, q: string, frag: string) =>
+    anchors.has(frag) ? `${start}${q}#${frag}${q}` : full,
+  );
 }
 
 /** Path part of a WordPress permalink, e.g. "/2026/09/24/sample-post/". */
@@ -46,7 +72,7 @@ export function isElementor(entry: WPEntry): boolean {
 
 export function featuredImage(entry: WPEntry): WPMedia | null {
   const media = entry._embedded?.["wp:featuredmedia"]?.[0];
-  return media?.source_url ? { ...media, source_url: relativeUrl(media.source_url) } : null;
+  return media?.source_url ? { ...media, source_url: assetUrl(media.source_url) } : null;
 }
 
 export function entryTerms(entry: WPEntry): { categories: WPTerm[]; tags: WPTerm[] } {

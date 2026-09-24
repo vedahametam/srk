@@ -11,9 +11,9 @@ export const mockAuthors: WPAuthor[] = [
 ];
 
 export const mockCategories: WPTerm[] = [
-  { id: 2, name: "Teachings", slug: "teachings", link: `${ORIGIN}/category/teachings/`, taxonomy: "category", count: 3, description: "Words and parables of the Master." },
-  { id: 3, name: "Life", slug: "life", link: `${ORIGIN}/category/life/`, taxonomy: "category", count: 2, description: "Episodes from the life of Sri Ramakrishna." },
-  { id: 4, name: "Devotees", slug: "devotees", link: `${ORIGIN}/category/devotees/`, taxonomy: "category", count: 1, description: "The disciples and devotees who gathered around him." },
+  { id: 2, name: "Articles", slug: "public-articles", link: `${ORIGIN}/category/public-articles/`, taxonomy: "category", count: 3 },
+  { id: 3, name: "Reminiscences", slug: "reminiscences", link: `${ORIGIN}/category/reminiscences/`, taxonomy: "category", count: 2 },
+  { id: 4, name: "Disciples", slug: "disciples", link: `${ORIGIN}/category/disciples/`, taxonomy: "category", count: 1 },
 ];
 
 export const mockTags: WPTerm[] = [
@@ -104,15 +104,8 @@ function page(id: number, slug: string, title: string, parent = 0, parentPath = 
 }
 
 export const mockPages: WPEntry[] = [
-  page(201, "life", "The Life of Sri Ramakrishna"),
-  page(202, "kamarpukur", "Childhood at Kamarpukur", 201, "/life"),
-  page(203, "dakshineswar", "Dakshineswar", 201, "/life"),
-  page(204, "sadhana", "Twelve Years of Sadhana", 201, "/life"),
-  page(205, "cossipore", "Cossipore & Mahasamadhi", 201, "/life"),
-  page(206, "teachings", "Teachings of Sri Ramakrishna"),
-  page(207, "holy-mother", "Sri Sarada Devi, the Holy Mother"),
-  page(208, "swami-vivekananda", "Swami Vivekananda"),
-  page(209, "gallery", "Gallery"),
-  page(210, "contact", "Contact"),
-  page(211, "sacred-places", "Sacred Places"),
+  page(201, "about-2", "About"),
+  page(202, "temples", "Temples"),
+  page(203, "disciples", "Disciples"),
+  page(204, "gallery-2", "Gallery"),
 ];

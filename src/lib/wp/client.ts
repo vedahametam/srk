@@ -10,14 +10,33 @@ export const isMockMode = !WP_URL;
 
 export const wordpressOrigin = WP_URL;
 
+/** Absolute URL of a WordPress asset such as "/wp-content/uploads/…", for next/image. */
+export function wpAsset(path: string): string {
+  return `${WP_URL || "https://sriramakrishna.in"}${path}`;
+}
+
 type Query = Record<string, string | number | undefined>;
+
+/** Shared hosting occasionally resets connections or answers 5xx/429 under load; retry briefly. */
+async function fetchWithRetry(url: URL | string, init: RequestInit, attempts = 3): Promise<Response> {
+  for (let i = 1; ; i++) {
+    try {
+      const res = await fetch(url, init);
+      if ((res.status >= 500 || res.status === 429) && i < attempts) throw new Error(`HTTP ${res.status}`);
+      return res;
+    } catch (err) {
+      if (i >= attempts) throw err;
+      await new Promise((r) => setTimeout(r, 400 * 2 ** i));
+    }
+  }
+}
 
 async function wpFetch<T>(path: string, query: Query = {}, tags: string[] = []) {
   const url = new URL(`${WP_URL}/wp-json/wp/v2/${path}`);
   for (const [k, v] of Object.entries(query)) {
     if (v !== undefined && v !== "") url.searchParams.set(k, String(v));
   }
-  const res = await fetch(url, {
+  const res = await fetchWithRetry(url, {
     headers: { Accept: "application/json" },
     next: { revalidate: REVALIDATE, tags: ["wordpress", ...tags] },
   });
@@ -49,11 +68,16 @@ export type PostQuery = {
   /** ISO dates (inclusive/exclusive) for date archives. */
   after?: string;
   before?: string;
+  order?: "asc" | "desc";
 };
+
+/** Listing requests leave out post bodies, which can be 100 kB each for book chapters. */
+const LIST_FIELDS =
+  "id,type,slug,link,date,modified,title,excerpt,featured_media,categories,tags,author,_links,_embedded";
 
 export async function getPosts(q: PostQuery = {}): Promise<Paged<WPEntry>> {
   const page = q.page ?? 1;
-  const perPage = q.perPage ?? 9;
+  const perPage = q.perPage ?? 10; // WordPress default (Settings → Reading), so /page/N/ matches.
 
   if (isMockMode) {
     const s = q.search?.toLowerCase();
@@ -66,6 +90,7 @@ export async function getPosts(q: PostQuery = {}): Promise<Paged<WPEntry>> {
         (!q.after || p.date >= q.after) &&
         (!q.before || p.date < q.before),
     );
+    if (q.order === "asc") filtered.reverse();
     return paginate(filtered, page, perPage);
   }
 
@@ -75,12 +100,16 @@ export async function getPosts(q: PostQuery = {}): Promise<Paged<WPEntry>> {
       _embed: "author,wp:featuredmedia,wp:term",
       page,
       per_page: perPage,
-      categories: q.category,
+      // Include sub-categories, as WordPress category archives do.
+      "categories[terms]": q.category,
+      "categories[include_children]": q.category ? "true" : undefined,
       tags: q.tag,
       author: q.author,
       search: q.search,
       after: q.after,
       before: q.before,
+      order: q.order,
+      _fields: LIST_FIELDS,
     },
     ["posts"],
   );
@@ -132,10 +161,37 @@ export async function getCategories(): Promise<WPTerm[]> {
   if (isMockMode) return mockCategories;
   const { data } = await wpFetch<WPTerm[]>(
     "categories",
-    { per_page: 100, hide_empty: "true", orderby: "count", order: "desc" },
+    { per_page: 100, orderby: "count", order: "desc" },
     ["categories"],
   );
   return data;
+}
+
+/** The posts either side of `post` within a category, in the category's (newest-first) order. */
+export async function getAdjacentPosts(post: WPEntry, categoryId: number) {
+  const [newer, older] = await Promise.all([
+    getPosts({ category: categoryId, after: post.date, order: "asc", perPage: 1 }),
+    getPosts({ category: categoryId, before: post.date, order: "desc", perPage: 1 }),
+  ]);
+  return { previous: newer.items[0] ?? null, next: older.items[0] ?? null };
+}
+
+export type TocEntry = { id: number; link: string; title: { rendered: string }; date: string };
+
+/** Every post in a category, titles only, newest first — used as a book's table of contents. */
+export async function getCategoryToc(categoryId: number): Promise<TocEntry[]> {
+  if (isMockMode) return mockPosts.filter((p) => p.categories?.includes(categoryId));
+  const out: TocEntry[] = [];
+  for (let page = 1; ; page++) {
+    const { data, totalPages } = await wpFetch<TocEntry[]>(
+      "posts",
+      { categories: categoryId, per_page: 100, page, _fields: "id,link,title,date" },
+      ["posts"],
+    );
+    out.push(...data);
+    if (page >= totalPages) break;
+  }
+  return out;
 }
 
 /** Posts and pages for the sitemap, fetched in pages of 100. */
@@ -164,7 +220,7 @@ export async function getElementorStyles(entry: WPEntry): Promise<{ links: strin
   if (isMockMode) return { links: [], inline: [] };
   try {
     // Ask WordPress itself, whatever domain its permalinks use.
-    const res = await fetch(`${WP_URL}${new URL(entry.link).pathname}`, {
+    const res = await fetchWithRetry(`${WP_URL}${new URL(entry.link).pathname}`, {
       next: { revalidate: REVALIDATE, tags: ["wordpress", `html:${entry.id}`] },
     });
     if (!res.ok) throw new Error(String(res.status));

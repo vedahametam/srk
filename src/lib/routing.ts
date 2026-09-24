@@ -8,6 +8,7 @@ export type Route =
   | { kind: "post"; year: string; month: string; day: string; slug: string }
   | { kind: "date"; year: string; month?: string; day?: string; page: number }
   | { kind: "postsIndex"; page: number }
+  | { kind: "redirect"; to: string }
   | { kind: "page"; path: string; slug: string };
 
 /** Splits a trailing "/page/N" off the segments, as WordPress paginates archives. */
@@ -39,9 +40,10 @@ export function parseRoute(rawSegments: string[]): Route | null {
   const { segments, page } = split;
   const path = `/${segments.join("/")}/`;
 
-  if (path === site.postsIndexPath || (segments.length === 0 && page > 1)) {
-    return { kind: "postsIndex", page };
-  }
+  if (site.postsIndexPath && path === site.postsIndexPath) return { kind: "postsIndex", page };
+  // Static front page: WordPress serves /page/N/ as the home page and redirects the front page's own slug.
+  if (segments.length === 0 && page > 1) return { kind: "redirect", to: "/" };
+  if (path === `/${site.frontPageSlug}/`) return { kind: "redirect", to: "/" };
 
   const [y, m, d, slug, ...rest] = segments;
   if (isYear(y)) {
