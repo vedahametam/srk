@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ivory: #fbf6ec;
+  --color-parchment: #f5ead6;
+  --color-sandal: #ecd9b8;
+  --color-saffron: #e8892b;
+  --color-saffron-deep: #c8641a;
+  --color-vermilion: #b3361f;
+  --color-maroon: #6b1d1a;
+  --color-maroon-deep: #4a1110;
+  --color-night: #230807;
+  --color-gold: #c9a14a;
+  --color-gold-soft: #ead39a;
+  --color-ink: #2d1b12;
+  --color-ink-soft: #5c4636;
+
+  --font-display: "Cormorant Garamond", "Tiro Devanagari Sanskrit", Georgia, serif;
+  --font-serif: "EB Garamond", "Tiro Bangla", Georgia, serif;
+  --font-deva: "Tiro Devanagari Sanskrit", "Cormorant Garamond", serif;
+  --font-bangla: "Tiro Bangla", "EB Garamond", serif;
+
+  --animate-slow-spin: slow-spin 180s linear infinite;
+  --animate-flicker: flicker 3.2s ease-in-out infinite;
+  --animate-glow: glow 6s ease-in-out infinite;
+
+  @keyframes slow-spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes flicker {
+    0%, 100% { transform: scaleY(1) skewX(0deg); opacity: 1; }
+    25% { transform: scaleY(1.06) skewX(-2deg); opacity: 0.94; }
+    50% { transform: scaleY(0.96) skewX(1.5deg); opacity: 1; }
+    75% { transform: scaleY(1.04) skewX(-1deg); opacity: 0.9; }
+  }
+  @keyframes glow {
+    0%, 100% { opacity: 0.75; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.06); }
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-ivory);
+  color: var(--color-ink);
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-saffron) 35%, transparent);
+}
+
+/* Subtle handmade-paper grain on light surfaces. */
+.paper {
+  background-color: var(--color-ivory);
+  background-image:
+    radial-gradient(ellipse at top, color-mix(in oklab, var(--color-gold-soft) 35%, transparent), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .3 0 0 0 0 .15 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Night sky of the temple courtyard, lit by lamps. */
+.temple-night {
+  background-color: var(--color-night);
+  background-image:
+    radial-gradient(ellipse 60% 50% at 50% 38%, color-mix(in oklab, var(--color-saffron) 38%, transparent), transparent 70%),
+    radial-gradient(ellipse 90% 70% at 50% 100%, var(--color-maroon-deep), transparent 75%),
+    linear-gradient(180deg, #1a0605 0%, var(--color-night) 45%, var(--color-maroon-deep) 100%);
+  color: var(--color-ivory);
+}
+
+/* Temple arch frame used for portraits and cards. */
+.arch {
+  border-radius: 999px 999px 1.25rem 1.25rem;
+}
+
+.eyebrow {
+  font-family: var(--font-serif);
+  font-size: 0.8rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-saffron-deep);
+}
+
+.gold-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
+.text-gilded {
+  background: linear-gradient(180deg, #f8e7b4 0%, var(--color-gold) 55%, #9c7430 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Gentle entrance as sections scroll into view (progressive enhancement). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slow-spin, .animate-flicker, .animate-glow {
+    animation: none;
+  }
+}
+
+/* ---------- Content coming from WordPress ---------- */
+
+.wp-prose {
+  color: var(--color-ink);
+  font-size: 1.2rem;
+  line-height: 1.85;
+}
+.wp-prose > * + * { margin-top: 1.25em; }
+.wp-prose h2, .wp-prose h3, .wp-prose h4 {
+  font-family: var(--font-display);
+  color: var(--color-maroon);
+  line-height: 1.2;
+  margin-top: 2em;
+}
+.wp-prose h2 { font-size: 2.1rem; font-weight: 600; }
+.wp-prose h3 { font-size: 1.65rem; font-weight: 600; }
+.wp-prose h4 { font-size: 1.35rem; font-weight: 600; }
+.wp-prose a {
+  color: var(--color-vermilion);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--color-gold) 70%, transparent);
+  text-underline-offset: 3px;
+}
+.wp-prose a:hover { color: var(--color-maroon); }
+.wp-prose ul { list-style: disc; padding-left: 1.4em; }
+.wp-prose ol { list-style: decimal; padding-left: 1.4em; }
+.wp-prose li + li { margin-top: 0.4em; }
+.wp-prose li::marker { color: var(--color-saffron-deep); }
+.wp-prose blockquote {
+  position: relative;
+  margin: 2.2em 0;
+  padding: 1.6em 1.8em 1.6em 2.4em;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--color-maroon);
+  background: linear-gradient(90deg, color-mix(in oklab, var(--color-sandal) 55%, transparent), transparent);
+  border-left: 3px solid var(--color-gold);
+  border-radius: 0 1rem 1rem 0;
+}
+.wp-prose img, .wp-prose video, .wp-prose iframe {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+}
+.wp-prose figure { margin: 2em 0; }
+.wp-prose figcaption {
+  margin-top: 0.6em;
+  font-size: 0.95rem;
+  text-align: center;
+  font-style: italic;
+  color: var(--color-ink-soft);
+}
+.wp-prose hr {
+  border: 0;
+  height: 1px;
+  margin: 3em auto;
+  width: 50%;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+.wp-prose table { width: 100%; border-collapse: collapse; font-size: 1rem; }
+.wp-prose th, .wp-prose td { border-bottom: 1px solid var(--color-sandal); padding: 0.6em; text-align: left; }
+.wp-prose .alignleft { float: left; margin: 0.4em 1.5em 1em 0; }
+.wp-prose .alignright { float: right; margin: 0.4em 0 1em 1.5em; }
+.wp-prose .aligncenter { margin-left: auto; margin-right: auto; }
+.wp-prose.drop-cap > p:first-of-type::first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 4.6em;
+  line-height: 0.8;
+  padding: 0.08em 0.12em 0 0;
+  color: var(--color-vermilion);
+}
+
+/* Elementor pages keep their own layout; only ensure it can breathe and use our type. */
+.elementor-host {
+  font-family: var(--font-serif);
+}
+.elementor-host .elementor-heading-title {
+  font-family: var(--font-display);
+}
+.elementor-host img {
+  max-width: 100%;
+  height: auto;
+}
