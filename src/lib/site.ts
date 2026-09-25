@@ -16,6 +16,12 @@ export const site = {
   url: (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://sriramakrishna.in").replace(/\/$/, ""),
 };
 
+/** The Sri Ramakrishna mobile app, linked from the footer. */
+export const appLinks = {
+  googlePlay: "https://play.google.com/store/apps/details?id=com.karthavya.sriramakrishna&hl=en_IN",
+  appStore: "https://apps.apple.com/in/app/sri-ramakrishna/id1352795521",
+};
+
 export type NavItem = { label: string; href: string; children?: NavItem[] };
 
 /**

@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { footerNav, site } from "@/lib/site";
+import { appLinks, footerNav, site } from "@/lib/site";
 import { Diya, LotusDivider, Mandala } from "./ornaments";
 
 export function SiteFooter() {
@@ -34,6 +35,36 @@ export function SiteFooter() {
               </ul>
             </div>
           ))}
+        </div>
+
+        <div className="mt-12 flex flex-col items-center gap-5 rounded-[2rem] border border-gold/25 bg-white/[0.03] px-6 py-8 text-center sm:flex-row sm:justify-between sm:px-10 sm:text-left">
+          <div>
+            <p className="font-display text-2xl text-gold-soft">Download the Sri Ramakrishna App</p>
+            <p className="mt-1 text-sm text-ivory/65">The Master’s life and teachings, on your phone.</p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {/* Official store badges; Apple and Google require them unaltered. */}
+            <a href={appLinks.googlePlay} target="_blank" rel="noopener" className="transition hover:opacity-85">
+              <Image
+                src="/images/badges/google-play.png"
+                alt="Get it on Google Play"
+                width={161}
+                height={48}
+                unoptimized
+                className="h-12 w-auto"
+              />
+            </a>
+            <a href={appLinks.appStore} target="_blank" rel="noopener" className="transition hover:opacity-85">
+              <Image
+                src="/images/badges/app-store.svg"
+                alt="Download on the App Store"
+                width={144}
+                height={48}
+                unoptimized
+                className="h-12 w-auto"
+              />
+            </a>
+          </div>
         </div>
 
         <div className="gold-rule mt-12 opacity-40" />
