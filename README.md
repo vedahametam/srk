@@ -75,7 +75,7 @@ The root domain `sriramakrishna.in` (the address Google has indexed) serves this
 3. **Vercel domain.** Add `sriramakrishna.in` to the project. Do not add `www`.
 4. **DNS (Hostinger → Domains → DNS):**
    - `www`: replace the CNAME (→ `sriramakrishna.in`) with **A `145.79.210.98`** and **AAAA `2a02:4780:11:2054:0:28ef:bfdd:9`**, so `www` stays on Hostinger.
-   - `@` (root): replace the A/AAAA records with the values Vercel shows when you add the domain (usually **A `76.76.21.21`**, and no AAAA).
+   - `@` (root): replace the A record with the value Vercel shows for the domain (for this project: **A `216.198.79.1`**), and delete the AAAA record.
    - Leave the MX records (email) and everything else unchanged.
 5. **WordPress → Settings → General**, once the root domain shows the new site:
    - WordPress Address (URL): `https://www.sriramakrishna.in`
