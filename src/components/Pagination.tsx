@@ -12,7 +12,7 @@ export function Pagination({ base, page, totalPages }: { base: string; page: num
   return (
     <nav aria-label="Pagination" className="mt-16 flex flex-wrap items-center justify-center gap-2 font-display text-lg">
       {page > 1 && (
-        <Link href={pageHref(base, page - 1)} rel="prev" className={`${item} text-maroon hover:bg-parchment`}>
+        <Link prefetch={false} href={pageHref(base, page - 1)} rel="prev" className={`${item} text-maroon hover:bg-parchment`}>
           ← Newer
         </Link>
       )}
@@ -24,14 +24,14 @@ export function Pagination({ base, page, totalPages }: { base: string; page: num
               {p}
             </span>
           ) : (
-            <Link href={pageHref(base, p)} className={`${item} text-maroon hover:bg-parchment`}>
+            <Link prefetch={false} href={pageHref(base, p)} className={`${item} text-maroon hover:bg-parchment`}>
               {p}
             </Link>
           )}
         </span>
       ))}
       {page < totalPages && (
-        <Link href={pageHref(base, page + 1)} rel="next" className={`${item} text-maroon hover:bg-parchment`}>
+        <Link prefetch={false} href={pageHref(base, page + 1)} rel="next" className={`${item} text-maroon hover:bg-parchment`}>
           Older →
         </Link>
       )}

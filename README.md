@@ -66,7 +66,7 @@ The designed pages use photos from the WordPress media library, copied to `publi
 
 The root domain `sriramakrishna.in` (the address Google has indexed) serves this site from Vercel. WordPress keeps running on Hostinger at `www.sriramakrishna.in`, for the admin, the API and uploads. Do the steps in this order:
 
-1. **WordPress plugin.** Upload `wordpress/mu-plugins/headless-frontend.php` to `wp-content/mu-plugins/` on Hostinger. Create the folder if it doesn't exist. It is active as soon as it's uploaded.
+1. **WordPress plugin.** Upload `wordpress/mu-plugins/headless-frontend.php` to `wp-content/mu-plugins/` on Hostinger. Create the folder if it doesn't exist. It is active as soon as it's uploaded. To refresh the site as soon as something is published, also add `SRK_FRONTEND_URL` and `SRK_REVALIDATE_SECRET` to `wp-config.php` (see the top of the file).
 2. **Vercel environment variables** (Production and Preview), then redeploy:
    - `WORDPRESS_URL=https://www.sriramakrishna.in`
    - `NEXT_PUBLIC_SITE_URL=https://sriramakrishna.in`
@@ -88,6 +88,13 @@ The root domain `sriramakrishna.in` (the address Google has indexed) serves this
 Other notes:
 - WordPress's "Preview" and "View post" buttons open the root domain. Published content shows up within `WORDPRESS_REVALIDATE_SECONDS`, or immediately with the publish webhook (`POST /api/revalidate/?secret=…`). Previews of unpublished drafts are not supported.
 - The menu lives in `src/lib/site.ts`, because WordPress menus aren't in the public API.
+
+## Keeping hosting usage low
+
+- Pages are cached for a day (`revalidate = 86400`) and refreshed when WordPress publishes (the plugin calls `/api/revalidate`), so visitors and crawlers almost always get a cached copy.
+- Links inside content don't prefetch, so a page with 129 chapter links doesn't trigger 129 background renders. Only the header menu prefetches.
+- Resized images are cached for 31 days (`images.minimumCacheTTL`).
+- The app is a standard Next.js server: `npm run build && npm start` (Node 20.9+) runs it on any machine if you move off Vercel.
 
 ## Project layout
 

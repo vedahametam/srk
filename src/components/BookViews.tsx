@@ -34,7 +34,7 @@ export function BookView({ toc, current, description }: { toc: BookToc; current?
         {description && <p className="mx-auto max-w-2xl text-lg">{description}</p>}
         <p className="mt-3 text-sm uppercase tracking-[0.25em] text-gold-soft/80">{total} chapters</p>
         {first && (
-          <Link
+          <Link prefetch={false}
             href={toPath(first.link)}
             className="mt-8 inline-block rounded-full bg-gradient-to-b from-saffron to-saffron-deep px-7 py-3 font-medium text-ivory shadow-lg shadow-saffron/30"
           >
@@ -46,7 +46,7 @@ export function BookView({ toc, current, description }: { toc: BookToc; current?
       <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20">
         {current && (
           <p className="mb-10 text-center">
-            <Link href={toPath(toc.book.link)} className="text-vermilion underline decoration-gold underline-offset-4">
+            <Link prefetch={false} href={toPath(toc.book.link)} className="text-vermilion underline decoration-gold underline-offset-4">
               ← Full contents of {toc.book.name}
             </Link>
           </p>
@@ -56,7 +56,7 @@ export function BookView({ toc, current, description }: { toc: BookToc; current?
             {part && !current && (
               <h2 className="mb-6 flex items-center gap-4 font-display text-3xl font-semibold text-maroon">
                 <Lotus className="h-6 w-12 text-gold" />
-                <Link href={toPath(part.link)} className="hover:text-vermilion">
+                <Link prefetch={false} href={toPath(part.link)} className="hover:text-vermilion">
                   {part.name}
                 </Link>
               </h2>
@@ -66,7 +66,7 @@ export function BookView({ toc, current, description }: { toc: BookToc; current?
                 const number = offsets[partIndex] + i + 1;
                 return (
                   <li key={ch.id} className="border-b border-gold/15 last:border-0">
-                    <Link href={toPath(ch.link)} className="group flex items-baseline gap-5 px-6 py-4 transition hover:bg-parchment">
+                    <Link prefetch={false} href={toPath(ch.link)} className="group flex items-baseline gap-5 px-6 py-4 transition hover:bg-parchment">
                       <span className="w-8 shrink-0 text-right font-display text-lg text-saffron-deep/80">{number}</span>
                       <span className="flex-1 text-lg text-ink group-hover:text-maroon">{chapterTitle(ch.title.rendered)}</span>
                       <span className="text-gold opacity-0 transition group-hover:opacity-100" aria-hidden="true">
@@ -102,7 +102,7 @@ export function ChapterNav({
       <LotusDivider className="mb-10 text-gold" />
       <div className="flex flex-col gap-4 sm:flex-row">
         {previous ? (
-          <Link href={toPath(previous.link)} rel="prev" className={card}>
+          <Link prefetch={false} href={toPath(previous.link)} rel="prev" className={card}>
             <span className="eyebrow">← Previous {unit}</span>
             <span className="mt-2 font-display text-xl text-maroon group-hover:text-vermilion">{chapterTitle(previous.title.rendered)}</span>
           </Link>
@@ -110,7 +110,7 @@ export function ChapterNav({
           <span className="hidden flex-1 sm:block" />
         )}
         {next ? (
-          <Link href={toPath(next.link)} rel="next" className={`${card} sm:text-right`}>
+          <Link prefetch={false} href={toPath(next.link)} rel="next" className={`${card} sm:text-right`}>
             <span className="eyebrow">Next {unit} →</span>
             <span className="mt-2 font-display text-xl text-maroon group-hover:text-vermilion">{chapterTitle(next.title.rendered)}</span>
           </Link>
@@ -120,7 +120,7 @@ export function ChapterNav({
       </div>
       {contents && (
         <p className="mt-8 text-center">
-          <Link href={toPath(contents.link)} className="font-display text-lg text-vermilion underline decoration-gold underline-offset-4">
+          <Link prefetch={false} href={toPath(contents.link)} className="font-display text-lg text-vermilion underline decoration-gold underline-offset-4">
             Contents of {contents.name}
           </Link>
         </p>

@@ -70,7 +70,7 @@ function dateLabel(year: string, month?: string, day?: string) {
 }
 
 // Rendered on first request, then cached and refreshed in the background (ISR).
-export const revalidate = 300;
+export const revalidate = 86400; // a day; publishing in WordPress refreshes sooner via /api/revalidate
 export async function generateStaticParams() {
   return [];
 }

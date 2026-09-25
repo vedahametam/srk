@@ -15,8 +15,11 @@ export const LINK_ORIGINS = (read(process.env.WORDPRESS_LINK_ORIGINS) ?? DEFAULT
   .map((o) => o.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
-/** Seconds before cached WordPress responses refresh. Must be positive: 0 would disable caching. */
+/**
+ * Seconds before cached WordPress responses refresh (default: a day). Publishing in
+ * WordPress refreshes sooner through /api/revalidate. Must be positive: 0 disables caching.
+ */
 export const REVALIDATE_SECONDS = (() => {
   const n = Number(read(process.env.WORDPRESS_REVALIDATE_SECONDS));
-  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 300;
+  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 86400;
 })();

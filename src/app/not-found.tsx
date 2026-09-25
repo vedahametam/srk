@@ -12,10 +12,10 @@ export default function NotFound() {
       </p>
       <LotusDivider className="my-10 text-gold" />
       <div className="flex flex-wrap justify-center gap-4">
-        <Link href="/" className="rounded-full bg-maroon px-6 py-3 text-ivory hover:bg-vermilion">
+        <Link prefetch={false} href="/" className="rounded-full bg-maroon px-6 py-3 text-ivory hover:bg-vermilion">
           Return home
         </Link>
-        <Link href="/search/" className="rounded-full border border-maroon/30 px-6 py-3 text-maroon hover:bg-parchment">
+        <Link prefetch={false} href="/search/" className="rounded-full border border-maroon/30 px-6 py-3 text-maroon hover:bg-parchment">
           Search the site
         </Link>
       </div>

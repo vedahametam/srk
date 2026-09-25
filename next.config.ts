@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
 
   images: {
+    // Uploads rarely change: keep resized copies for 31 days instead of 4 hours.
+    minimumCacheTTL: 2678400,
     remotePatterns: [
       ...imageOrigins.map((origin) => {
         const u = new URL(origin);

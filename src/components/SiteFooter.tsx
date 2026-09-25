@@ -26,7 +26,7 @@ export function SiteFooter() {
               <ul className="mt-4 space-y-2">
                 {group.items.map((item) => (
                   <li key={item.href}>
-                    <Link href={item.href} className="text-ivory/80 transition hover:text-gold-soft">
+                    <Link prefetch={false} href={item.href} className="text-ivory/80 transition hover:text-gold-soft">
                       {item.label}
                     </Link>
                   </li>

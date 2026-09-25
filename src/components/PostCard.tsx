@@ -15,7 +15,7 @@ export function PostCard({ post, priority }: { post: WPEntry; priority?: boolean
 
   return (
     <article className="group reveal flex flex-col overflow-hidden rounded-[1.75rem] border border-gold/25 bg-ivory shadow-sm shadow-maroon/5 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-maroon/10">
-      <Link href={href} tabIndex={-1} aria-hidden="true" className="block">
+      <Link prefetch={false} href={href} tabIndex={-1} aria-hidden="true" className="block">
         {image ? (
           <div className={`relative aspect-[16/10] overflow-hidden ${small ? "bg-parchment" : ""}`}>
             <Image
@@ -34,20 +34,20 @@ export function PostCard({ post, priority }: { post: WPEntry; priority?: boolean
       <div className="flex flex-1 flex-col p-6">
         <div className="flex items-center gap-3 text-sm text-ink-soft">
           {category && (
-            <Link href={toPath(category.link)} className="eyebrow !text-[0.7rem] hover:text-maroon">
+            <Link prefetch={false} href={toPath(category.link)} className="eyebrow !text-[0.7rem] hover:text-maroon">
               {category.name}
             </Link>
           )}
           <time dateTime={post.date}>{formatDate(post.date)}</time>
         </div>
         <h3 className="mt-3 font-display text-2xl font-semibold leading-snug text-maroon">
-          <Link href={href} className="hover:text-vermilion">
+          <Link prefetch={false} href={href} className="hover:text-vermilion">
             {title}
           </Link>
         </h3>
         <p className="mt-3 line-clamp-3 text-[1.02rem] leading-relaxed text-ink-soft">{plainText(post.excerpt.rendered)}</p>
         <span className="mt-auto pt-5 text-sm font-medium tracking-wide text-saffron-deep">
-          <Link href={href} className="inline-flex items-center gap-2 hover:gap-3 hover:text-maroon">
+          <Link prefetch={false} href={href} className="inline-flex items-center gap-2 hover:gap-3 hover:text-maroon">
             Read <span aria-hidden="true">→</span>
           </Link>
         </span>

@@ -75,13 +75,13 @@ export async function PostView({ post }: { post: WPEntry }) {
         eyebrow={
           section ? (
             <>
-              <Link href={toPath(section.link)} className="hover:text-gold-soft">
+              <Link prefetch={false} href={toPath(section.link)} className="hover:text-gold-soft">
                 {section.name}
               </Link>
               {part && (
                 <>
                   <span className="mx-2 opacity-60">·</span>
-                  <Link href={toPath(part.link)} className="hover:text-gold-soft">
+                  <Link prefetch={false} href={toPath(part.link)} className="hover:text-gold-soft">
                     {part.name}
                   </Link>
                 </>
@@ -100,7 +100,7 @@ export async function PostView({ post }: { post: WPEntry }) {
               {author && author.slug !== "admin" && (
                 <>
                   <span className="mx-3 opacity-50">·</span>
-                  <Link href={toPath(author.link)} className="hover:text-gold-soft">
+                  <Link prefetch={false} href={toPath(author.link)} className="hover:text-gold-soft">
                     {author.name}
                   </Link>
                 </>
@@ -134,7 +134,7 @@ export async function PostView({ post }: { post: WPEntry }) {
       {tags.length > 0 && (
         <div className="mx-auto mb-12 flex max-w-3xl flex-wrap gap-2 px-4 sm:px-6">
           {tags.map((t) => (
-            <Link key={t.id} href={toPath(t.link)} className="rounded-full border border-gold/40 bg-parchment px-4 py-1 text-sm text-maroon hover:border-saffron">
+            <Link prefetch={false} key={t.id} href={toPath(t.link)} className="rounded-full border border-gold/40 bg-parchment px-4 py-1 text-sm text-maroon hover:border-saffron">
               #{t.name}
             </Link>
           ))}

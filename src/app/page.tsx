@@ -19,6 +19,9 @@ import {
 import { getCategories, getCategoryBySlug, getPosts, wpAsset } from "@/lib/wp/client";
 import { featuredImage, plainText, toPath } from "@/lib/wp/content";
 
+// Rebuilt at most daily; publishing in WordPress refreshes it sooner via /api/revalidate.
+export const revalidate = 86400;
+
 export default async function Home() {
   // WordPress-backed sections are hidden if WordPress is briefly unreachable; ISR fills them in again.
   const empty = { items: [], total: 0, totalPages: 0 };
@@ -52,13 +55,13 @@ export default async function Home() {
               <p className="mt-2 font-display text-2xl italic text-ivory/85">“As many faiths, so many paths.”</p>
             </div>
             <div className="mt-10 flex flex-wrap justify-center gap-4 lg:justify-start">
-              <Link
+              <Link prefetch={false}
                 href="/about-2/"
                 className="rounded-full bg-gradient-to-b from-saffron to-saffron-deep px-7 py-3 font-medium text-ivory shadow-lg shadow-saffron/30 transition hover:shadow-saffron/50"
               >
                 About the Master
               </Link>
-              <Link
+              <Link prefetch={false}
                 href={books[0].href}
                 className="rounded-full border border-gold/60 px-7 py-3 font-medium text-gold-soft transition hover:bg-gold/10"
               >
@@ -111,7 +114,7 @@ export default async function Home() {
             <blockquote className="font-display text-2xl italic leading-snug text-maroon">“{featuredTeaching.text}”</blockquote>
             <figcaption className="mt-3 text-sm uppercase tracking-[0.2em] text-ink-soft">— Sri Ramakrishna</figcaption>
           </figure>
-          <Link href="/about-2/" className="mt-8 inline-block rounded-full bg-maroon px-7 py-3 text-ivory transition hover:bg-vermilion">
+          <Link prefetch={false} href="/about-2/" className="mt-8 inline-block rounded-full bg-maroon px-7 py-3 text-ivory transition hover:bg-vermilion">
             Read more
           </Link>
         </div>
@@ -134,7 +137,7 @@ export default async function Home() {
                   <h3 className="mt-1 font-display text-2xl font-semibold text-maroon">{m.title}</h3>
                   <p className="mt-2 text-ink-soft">{m.text}</p>
                   {m.href && (
-                    <Link href={m.href} className="mt-3 inline-block text-vermilion underline decoration-gold underline-offset-4 hover:text-maroon">
+                    <Link prefetch={false} href={m.href} className="mt-3 inline-block text-vermilion underline decoration-gold underline-offset-4 hover:text-maroon">
                       Read more →
                     </Link>
                   )}
@@ -167,7 +170,7 @@ export default async function Home() {
             {books.map((b) => {
               const count = chapterCount(b.href);
               return (
-                <Link
+                <Link prefetch={false}
                   key={b.href}
                   href={b.href}
                   className="group reveal relative flex flex-col overflow-hidden rounded-[2rem] border border-gold/40 bg-gradient-to-br from-maroon to-maroon-deep p-10 shadow-2xl shadow-black/40 transition hover:-translate-y-1 hover:border-gold"
@@ -225,7 +228,7 @@ export default async function Home() {
             </div>
             <div className="mt-14 grid items-center gap-12 lg:grid-cols-[0.8fr_1.2fr]">
               {holyMother && (
-                <Link href={toPath(holyMother.link)} className="group reveal mx-auto block w-full max-w-xs text-center">
+                <Link prefetch={false} href={toPath(holyMother.link)} className="group reveal mx-auto block w-full max-w-xs text-center">
                   <div className="arch border border-gold/50 bg-ivory p-2.5 shadow-xl shadow-maroon/10 transition group-hover:-translate-y-1">
                     <SacredImage slot={images.holyMother} className="arch" sizes="20rem" />
                   </div>
@@ -238,7 +241,7 @@ export default async function Home() {
                 {circle.map((d) => {
                   const img = featuredImage(d)!;
                   return (
-                    <Link key={d.id} href={toPath(d.link)} className="group reveal text-center">
+                    <Link prefetch={false} key={d.id} href={toPath(d.link)} className="group reveal text-center">
                       <div className="arch relative aspect-[3/4] overflow-hidden border border-gold/40 bg-white shadow-md shadow-maroon/10 transition group-hover:-translate-y-1 group-hover:shadow-xl">
                         <Image src={img.source_url} alt={plainText(d.title.rendered)} fill sizes="12rem" className="object-contain px-1 pt-3" />
                       </div>
@@ -251,7 +254,7 @@ export default async function Home() {
               </div>
             </div>
             <div className="mt-14 text-center">
-              <Link href="/disciples/" className="rounded-full bg-maroon px-7 py-3 text-ivory transition hover:bg-vermilion">
+              <Link prefetch={false} href="/disciples/" className="rounded-full bg-maroon px-7 py-3 text-ivory transition hover:bg-vermilion">
                 All disciples
               </Link>
             </div>
@@ -266,13 +269,13 @@ export default async function Home() {
             <p className="eyebrow">Tirtha</p>
             <h2 className="mt-3 font-display text-4xl font-semibold text-maroon sm:text-5xl">Sacred Places</h2>
           </div>
-          <Link href="/category/important-places/" className="font-display text-xl text-vermilion underline decoration-gold underline-offset-4 hover:text-maroon">
+          <Link prefetch={false} href="/category/important-places/" className="font-display text-xl text-vermilion underline decoration-gold underline-offset-4 hover:text-maroon">
             All important places →
           </Link>
         </div>
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {sacredPlaces.map((place) => (
-            <Link key={place.name} href={place.href} className="group reveal relative block overflow-hidden rounded-3xl">
+            <Link prefetch={false} key={place.name} href={place.href} className="group reveal relative block overflow-hidden rounded-3xl">
               <SacredImage slot={place.image} labelAt="top" aspect="aspect-[3/4]" className="transition duration-700 group-hover:scale-105" sizes="(min-width: 1024px) 25vw, 50vw" />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-night/90 via-night/40 to-transparent p-6 pt-20">
                 <h3 className="font-display text-2xl font-semibold text-ivory">{place.name}</h3>
@@ -292,7 +295,7 @@ export default async function Home() {
           </div>
           <div className="mt-14 grid gap-8 md:grid-cols-2">
             {testimonials.map((t) => (
-              <Link
+              <Link prefetch={false}
                 key={t.name}
                 href={t.href}
                 className="group reveal flex flex-col items-center gap-6 rounded-[2rem] border border-gold/25 bg-white/[0.03] p-8 text-center backdrop-blur-sm transition hover:border-gold/60 sm:flex-row sm:text-left"
@@ -308,7 +311,7 @@ export default async function Home() {
             ))}
           </div>
           <div className="mt-12 text-center">
-            <Link href="/category/reminiscences/" className="rounded-full border border-gold/60 px-7 py-3 text-gold-soft transition hover:bg-gold/10">
+            <Link prefetch={false} href="/category/reminiscences/" className="rounded-full border border-gold/60 px-7 py-3 text-gold-soft transition hover:bg-gold/10">
               Read all reminiscences
             </Link>
           </div>
@@ -357,7 +360,7 @@ export default async function Home() {
               ))}
             </div>
             <div className="mt-12 text-center">
-              <Link href="/category/public-articles/" className="rounded-full bg-maroon px-7 py-3 text-ivory transition hover:bg-vermilion">
+              <Link prefetch={false} href="/category/public-articles/" className="rounded-full bg-maroon px-7 py-3 text-ivory transition hover:bg-vermilion">
                 All articles
               </Link>
             </div>

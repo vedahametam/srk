@@ -39,7 +39,7 @@ export function AboutPage({ page }: { page: WPEntry }) {
         <p className="eyebrow text-center">Continue exploring</p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {explore.map((e) => (
-            <Link
+            <Link prefetch={false}
               key={e.href}
               href={e.href}
               className="group flex items-center justify-between rounded-2xl border border-gold/30 bg-ivory px-6 py-5 font-display text-xl text-maroon transition hover:border-saffron hover:shadow-lg hover:shadow-saffron/10"
@@ -96,7 +96,7 @@ export async function DisciplesPage({ page }: { page: WPEntry }) {
 
       {mother && (
         <section className="mx-auto max-w-5xl px-4 pt-16 sm:px-6 sm:pt-20">
-          <Link href={mother.href} className="group grid items-center gap-10 rounded-[2rem] border border-gold/40 bg-parchment p-8 shadow-xl shadow-maroon/5 sm:grid-cols-[14rem_1fr] sm:p-10">
+          <Link prefetch={false} href={mother.href} className="group grid items-center gap-10 rounded-[2rem] border border-gold/40 bg-parchment p-8 shadow-xl shadow-maroon/5 sm:grid-cols-[14rem_1fr] sm:p-10">
             <div className="arch mx-auto w-48 border border-gold/50 bg-ivory p-2 sm:w-full">
               <SacredImage slot={images.holyMother} className="arch" sizes="14rem" />
             </div>
@@ -125,7 +125,7 @@ export async function DisciplesPage({ page }: { page: WPEntry }) {
             </div>
             <div className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
               {list.map((p) => (
-                <Link key={p.href} href={p.href} className="group reveal text-center">
+                <Link prefetch={false} key={p.href} href={p.href} className="group reveal text-center">
                   <div className="arch relative aspect-[3/4] overflow-hidden border border-gold/40 bg-white shadow-md shadow-maroon/10 transition group-hover:-translate-y-1 group-hover:shadow-xl">
                     {p.image ? (
                       <Image src={p.image} alt={p.name} fill sizes="(min-width: 1024px) 12rem, 45vw" className="object-contain px-1 pt-3" />
@@ -194,7 +194,7 @@ export async function TemplesPage({ page }: { page: WPEntry }) {
                 <h2 className="mt-2 font-display text-3xl font-semibold text-maroon">{title}</h2>
                 <p className="mt-4 text-ink-soft">{plainText(post.excerpt.rendered)}</p>
                 <div className="mt-6 flex flex-wrap gap-3">
-                  <Link href={toPath(post.link)} className="rounded-full bg-maroon px-6 py-2.5 text-ivory transition hover:bg-vermilion">
+                  <Link prefetch={false} href={toPath(post.link)} className="rounded-full bg-maroon px-6 py-2.5 text-ivory transition hover:bg-vermilion">
                     Read more
                   </Link>
                   <a
