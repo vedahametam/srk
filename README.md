@@ -37,6 +37,11 @@ All 477 URLs from the live site (posts, pages, categories and their `/page/N/`, 
 | `/tag/…/`, `/author/…/`, `/?s=` | Tag/author archives, search |
 | `/feed/`, `/…/feed/`, `/wp-sitemap*.xml` | Proxied from WordPress with links rewritten |
 | `/wp-content/…` | Proxied to WordPress (old links to uploads keep working) |
+| `/?p=123`, `/?page_id=8`, `/?cat=10`, `/?author=…`, `/?attachment_id=…`, `/?feed=rss2` | Looked up in WordPress and redirected to the permalink, as WordPress does (`src/app/wp-legacy/route.ts`) |
+| Old or shortened URLs (`/about/`, `/gallery/`, a post's old slug) | Any URL that matches nothing is checked with WordPress; if WordPress would redirect it, so does this site |
+| `/YYYY/MM/DD/post/<anything>/` | Attachment pages, `/comment-page-N/`, `/amp/`: redirect to the post |
+| `/search/term/` | Redirects to `/search/?s=term` |
+| `/wp-admin/`, `/wp-login.php` | Redirect to the WordPress host, for editors' bookmarks |
 
 ## Content handling
 

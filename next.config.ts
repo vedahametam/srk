@@ -27,11 +27,33 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  async redirects() {
+    return [
+      // WordPress's pretty search URLs: /search/term/
+      { source: "/search/:term/", destination: "/search/?s=:term", permanent: true },
+      // Editors' old bookmarks: the dashboard now lives on the WordPress host.
+      ...(wordpress
+        ? [
+            { source: "/wp-admin/:path*", destination: `${wordpress}/wp-admin/:path*`, permanent: false },
+            { source: "/wp-login.php", destination: `${wordpress}/wp-login.php`, permanent: false },
+          ]
+        : []),
+    ];
+  },
+
   async rewrites() {
     return {
       beforeFiles: [
         // WordPress search: /?s=term
         { source: "/", has: [{ type: "query", key: "s" }], destination: "/search/" },
+        // Query-string links WordPress still answers: /?p=123, /?page_id=8, /?cat=10, /?feed=rss2 …
+        ...(wordpress
+          ? ["p", "page_id", "cat", "tag", "author", "attachment_id", "feed", "m"].map((key) => ({
+              source: "/",
+              has: [{ type: "query" as const, key }],
+              destination: "/wp-legacy/",
+            }))
+          : []),
         // Feeds and XML sitemaps are served by WordPress with links rewritten to this site.
         ...(wordpress
           ? [

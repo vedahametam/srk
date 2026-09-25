@@ -5,11 +5,24 @@ import { ArchiveView, PageView, PostView } from "@/components/views";
 import { dateRange, parseRoute } from "@/lib/routing";
 import { entryMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
-import { getPagesBySlug, getPostBySlug, getPosts } from "@/lib/wp/client";
+import { askWordPressRedirect, getPagesBySlug, getPostBySlug, getPosts } from "@/lib/wp/client";
 import { toPath } from "@/lib/wp/content";
 
 /** Resolves any WordPress permalink. Shared by the page and its metadata. */
-const resolve = cache(async (key: string) => {
+const resolve = cache(async (key: string) => (await resolveRoute(key)) ?? (await legacyRedirect(key)));
+
+/** Paths that are scanners probing for software, never content: don't bother WordPress with them. */
+const junk = /\.(php|aspx?|jsp|cgi|env|git|sql|bak|zip|ini|log)(\/|$)|(^|\/)(wp-admin|wp-includes|cgi-bin|\.git)(\/|$)/i;
+
+/** For anything else, WordPress knows old slugs and shortened URLs: follow its redirect. */
+async function legacyRedirect(key: string) {
+  if (junk.test(key)) return null;
+  const to = await askWordPressRedirect(`/${key.split("/").map(encodeURIComponent).join("/")}/`);
+  if (!to || to === `/${key}/`) return null;
+  return { kind: "redirect" as const, to };
+}
+
+async function resolveRoute(key: string) {
   const route = parseRoute(key.split("/"));
   if (!route) return null;
 
@@ -46,7 +59,7 @@ const resolve = cache(async (key: string) => {
       return { ...route, result };
     }
   }
-});
+}
 
 function dateLabel(year: string, month?: string, day?: string) {
   const d = new Date(Date.UTC(Number(year), month ? Number(month) - 1 : 0, day ? Number(day) : 1));

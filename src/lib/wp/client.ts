@@ -211,6 +211,33 @@ export async function getAllLinks(type: "posts" | "pages"): Promise<{ link: stri
 }
 
 /**
+ * Asks WordPress where it would send a URL it no longer serves directly:
+ * old slugs, shortened URLs, "?p=123" shortlinks and the like. Returns the
+ * target path on this site, or null. Results are cached for a day.
+ */
+export async function askWordPressRedirect(pathAndQuery: string): Promise<string | null> {
+  if (isMockMode) return null;
+  try {
+    const res = await fetch(`${WP_URL}${pathAndQuery}`, {
+      redirect: "manual",
+      next: { revalidate: 86400, tags: ["wordpress"] },
+    });
+    const location = res.headers.get("location");
+    if (res.status < 300 || res.status >= 400 || !location) return null;
+    const target = new URL(location, WP_URL);
+    const trusted = [WP_URL, ...(process.env.WORDPRESS_LINK_ORIGINS ?? "https://sriramakrishna.in,https://www.sriramakrishna.in").split(",")]
+      .map((o) => o.trim().replace(/\/$/, ""))
+      .filter(Boolean);
+    if (!trusted.includes(target.origin)) return null;
+    // Never forward to the WordPress admin or login screens.
+    if (/^\/wp-(admin|login)/.test(target.pathname)) return null;
+    return `${target.pathname}${target.search}`;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Stylesheets Elementor needs for a given entry. Elementor splits its CSS
  * across the plugin, the global kit and a per-post file, and the exact set
  * depends on the widgets used, so the reliable source is the page WordPress

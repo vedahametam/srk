@@ -46,6 +46,11 @@ export function parseRoute(rawSegments: string[]): Route | null {
   if (path === `/${site.frontPageSlug}/`) return { kind: "redirect", to: "/" };
 
   const [y, m, d, slug, ...rest] = segments;
+  // Sub-pages of a post: attachment pages, /comment-page-N/, /2/, /amp/ … WordPress
+  // serves these under the post; send them to the post itself.
+  if (isYear(y) && slug && isTwoDigit(m) && isTwoDigit(d) && rest.length === 1 && page === 1) {
+    return { kind: "redirect", to: `/${y}/${m}/${d}/${slug}/` };
+  }
   if (isYear(y)) {
     if (slug && isTwoDigit(m) && isTwoDigit(d) && rest.length === 0 && page === 1) {
       return { kind: "post", year: y, month: m, day: d, slug };
