@@ -13,7 +13,7 @@ export const site = {
   frontPageSlug: "homepage",
   /** Parent category whose children are books, shown as a table of contents. */
   booksCategorySlug: "ebooks",
-  url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://sriramakrishna.in").replace(/\/$/, ""),
+  url: (process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://sriramakrishna.in").replace(/\/$/, ""),
 };
 
 export type NavItem = { label: string; href: string; children?: NavItem[] };

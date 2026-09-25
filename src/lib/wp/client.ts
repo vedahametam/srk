@@ -1,9 +1,10 @@
 import "server-only";
+import { LINK_ORIGINS, REVALIDATE_SECONDS, WORDPRESS_URL } from "../env";
 import { mockAuthors, mockCategories, mockPages, mockPosts, mockTags } from "./mock";
 import type { Paged, WPAuthor, WPComment, WPEntry, WPTerm } from "./types";
 
-const WP_URL = process.env.WORDPRESS_URL?.replace(/\/$/, "") ?? "";
-const REVALIDATE = Number(process.env.WORDPRESS_REVALIDATE_SECONDS ?? 300);
+const WP_URL = WORDPRESS_URL;
+const REVALIDATE = REVALIDATE_SECONDS;
 
 /** True when running on built-in sample content instead of a live WordPress. */
 export const isMockMode = !WP_URL;
@@ -247,9 +248,7 @@ export async function askWordPressRedirect(pathAndQuery: string): Promise<string
     const location = res.headers.get("location");
     if (res.status < 300 || res.status >= 400 || !location) return null;
     const target = new URL(location, WP_URL);
-    const trusted = [WP_URL, ...(process.env.WORDPRESS_LINK_ORIGINS ?? "https://sriramakrishna.in,https://www.sriramakrishna.in").split(",")]
-      .map((o) => o.trim().replace(/\/$/, ""))
-      .filter(Boolean);
+    const trusted = [WP_URL, ...LINK_ORIGINS].filter(Boolean);
     if (!trusted.includes(target.origin)) return null;
     // Never forward to the WordPress admin or login screens.
     if (/^\/wp-(admin|login)/.test(target.pathname)) return null;

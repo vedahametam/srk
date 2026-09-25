@@ -1,10 +1,11 @@
 import type { NextConfig } from "next";
 
-const wordpress = process.env.WORDPRESS_URL?.replace(/\/$/, "");
+// Empty variables count as unset (see src/lib/env.ts).
+const wordpress = process.env.WORDPRESS_URL?.trim().replace(/\/$/, "") || undefined;
 
 const imageOrigins = [
   wordpress,
-  ...(process.env.WORDPRESS_LINK_ORIGINS ?? "https://sriramakrishna.in,https://www.sriramakrishna.in").split(","),
+  ...(process.env.WORDPRESS_LINK_ORIGINS?.trim() || "https://sriramakrishna.in,https://www.sriramakrishna.in").split(","),
 ]
   .map((o) => o?.trim())
   .filter((o): o is string => Boolean(o));

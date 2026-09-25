@@ -1,11 +1,7 @@
+import { LINK_ORIGINS, WORDPRESS_URL } from "../env";
 import type { WPEntry, WPMedia, WPTerm } from "./types";
 
-const linkOrigins = [
-  process.env.WORDPRESS_URL,
-  ...(process.env.WORDPRESS_LINK_ORIGINS ?? "https://sriramakrishna.in,https://www.sriramakrishna.in").split(","),
-]
-  .map((o) => o?.trim().replace(/\/$/, ""))
-  .filter((o): o is string => Boolean(o));
+const linkOrigins = [WORDPRESS_URL, ...LINK_ORIGINS].filter(Boolean);
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const originRe = linkOrigins.length
@@ -20,7 +16,7 @@ export function relativeUrl(value: string): string {
 }
 
 /** Where uploads are served from: the WordPress origin (the live site until the cut-over). */
-const assetOrigin = (process.env.WORDPRESS_URL || "https://sriramakrishna.in").replace(/\/$/, "");
+const assetOrigin = WORDPRESS_URL || "https://sriramakrishna.in";
 
 /** Absolute URL for a WordPress asset, whichever origin it was stored with. */
 export function assetUrl(url: string): string {
