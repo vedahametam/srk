@@ -69,7 +69,7 @@ The designed pages use photos from the WordPress media library, copied to `publi
 4. Optional: have WordPress call `POST /api/revalidate/?secret=…` with `{"slug":"…","type":"post"}` on publish, for instant updates. Otherwise content refreshes every `WORDPRESS_REVALIDATE_SECONDS` (default 300).
 5. The menu lives in `src/lib/site.ts`, because WordPress menus aren't in the public API. It mirrors the live menu, minus "Audio" and "Video", which point to `#`.
 
-Not carried over: comments (16 exist, and comments are open on posts). Showing them is a read-only API call; posting them from the new site would need extra work.
+Comments: the existing comments are shown read-only, threaded, under each post and page (`src/components/Comments.tsx`). Posting new comments from this site is not built yet; the section says "Comments are closed."
 
 ## Project layout
 

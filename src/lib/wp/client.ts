@@ -1,6 +1,6 @@
 import "server-only";
 import { mockAuthors, mockCategories, mockPages, mockPosts, mockTags } from "./mock";
-import type { Paged, WPAuthor, WPEntry, WPTerm } from "./types";
+import type { Paged, WPAuthor, WPComment, WPEntry, WPTerm } from "./types";
 
 const WP_URL = process.env.WORDPRESS_URL?.replace(/\/$/, "") ?? "";
 const REVALIDATE = Number(process.env.WORDPRESS_REVALIDATE_SECONDS ?? 300);
@@ -165,6 +165,28 @@ export async function getCategories(): Promise<WPTerm[]> {
     ["categories"],
   );
   return data;
+}
+
+/** Approved comments on a post or page, oldest first. */
+export async function getComments(entryId: number): Promise<WPComment[]> {
+  if (isMockMode) return [];
+  const out: WPComment[] = [];
+  for (let page = 1; ; page++) {
+    const { data, totalPages } = await wpFetch<WPComment[]>(
+      "comments",
+      {
+        post: entryId,
+        per_page: 100,
+        page,
+        order: "asc",
+        _fields: "id,post,parent,author_name,author_url,date,content",
+      },
+      ["comments", `comments:${entryId}`],
+    );
+    out.push(...data);
+    if (page >= totalPages) break;
+  }
+  return out;
 }
 
 /** The posts either side of `post` within a category, in the category's (newest-first) order. */

@@ -60,3 +60,13 @@ export type WPEntry = {
 };
 
 export type Paged<T> = { items: T[]; total: number; totalPages: number };
+
+export type WPComment = {
+  id: number;
+  post: number;
+  parent: number;
+  author_name: string;
+  author_url: string;
+  date: string;
+  content: Rendered;
+};

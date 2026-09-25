@@ -8,6 +8,7 @@ import { PostCard } from "./PostCard";
 import { findBook } from "@/lib/wp/books";
 import { getAdjacentPosts, getPosts } from "@/lib/wp/client";
 import { ChapterNav, chapterTitle } from "./BookViews";
+import { Comments } from "./Comments";
 import { entryTerms, featuredImage, formatDate, isElementor, plainText, readingMinutes, toPath } from "@/lib/wp/content";
 import type React from "react";
 import type { Paged, WPEntry } from "@/lib/wp/types";
@@ -140,6 +141,8 @@ export async function PostView({ post }: { post: WPEntry }) {
         </div>
       )}
 
+      <Comments entryId={post.id} />
+
       {adjacent && (
         <ChapterNav
           previous={adjacent.previous}
@@ -179,11 +182,25 @@ const designedPages: Record<string, (props: { page: WPEntry }) => Promise<React.
 
 export function PageView({ page }: { page: WPEntry }) {
   const Designed = designedPages[page.slug];
-  if (Designed) return <Designed page={page} />;
+  if (Designed) {
+    return (
+      <>
+        <Designed page={page} />
+        <Comments entryId={page.id} className="pt-4" />
+      </>
+    );
+  }
 
   const content = prepareContent(page);
   // Complex Elementor pages design their own title band; keep the WordPress layout intact.
-  if (content.mode === "elementor") return <EntryContent entry={page} content={content} />;
+  if (content.mode === "elementor") {
+    return (
+      <>
+        <EntryContent entry={page} content={content} />
+        <Comments entryId={page.id} className="pt-16" />
+      </>
+    );
+  }
 
   const title = plainText(page.title.rendered);
   const image = featuredImage(page);
@@ -200,6 +217,7 @@ export function PageView({ page }: { page: WPEntry }) {
       <div className="py-14 sm:py-20">
         <EntryContent entry={page} content={content} />
       </div>
+      <Comments entryId={page.id} />
     </article>
   );
 }
