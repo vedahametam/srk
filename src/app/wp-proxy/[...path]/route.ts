@@ -1,5 +1,5 @@
 import { site } from "@/lib/site";
-import { wordpressOrigin } from "@/lib/wp/client";
+import { HEADLESS_HEADERS, wordpressOrigin } from "@/lib/wp/client";
 
 /**
  * Serves WordPress feeds and XML sitemaps (reached via rewrites in
@@ -13,7 +13,12 @@ export async function GET(_req: Request, ctx: RouteContext<"/wp-proxy/[...path]"
   if (last !== "feed" && !/sitemap.*\.(xml|xsl)$/.test(last)) return new Response("Not found", { status: 404 });
   const url = `${wordpressOrigin}/${path.map(encodeURIComponent).join("/")}${last.includes(".") ? "" : "/"}`;
 
-  const res = await fetch(url, { next: { revalidate: 600, tags: ["wordpress"] } });
+  const res = await fetch(url, {
+    headers: HEADLESS_HEADERS,
+    // Never follow a redirect: with WordPress's Site Address pointing here, it would loop.
+    redirect: "manual",
+    next: { revalidate: 600, tags: ["wordpress"] },
+  });
   if (!res.ok) return new Response("Not found", { status: res.status === 404 ? 404 : 502 });
 
   const body = (await res.text()).split(wordpressOrigin).join(site.url);

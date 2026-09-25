@@ -52,6 +52,7 @@ All 477 URLs from the live site (posts, pages, categories and their `/page/N/`, 
 - **Gallery page.** A photo grid with a lightbox, built from the media library (`src/content/gallery.ts`), plus a link to the existing Flickr album.
 - **Uploads** load straight from WordPress; page links inside content are rewritten to stay on this site.
 - **Titles** imported in capitals ("THE HOLY MOTHER") are shown in title case.
+- **Comments.** Existing comments are shown read-only and threaded under each post and page (`src/components/Comments.tsx`). There is no comment form yet; the section says "Comments are closed."
 
 ## Images
 
@@ -61,15 +62,32 @@ The designed pages use photos from the WordPress media library, copied to `publi
 - the **Panchavati** at Dakshineswar
 - a **higher-resolution Holy Mother** portrait (the current one is 189×256)
 
-## Going live
+## Going live: WordPress on www, this site on the root domain
 
-1. Move WordPress to e.g. `cms.sriramakrishna.in`, with both *WordPress Address* and *Site Address* set to it.
-2. Keep that host out of search results with an `X-Robots-Tag: noindex` header, and don't tick *Discourage search engines*.
-3. Deploy this app (Vercel or any Node host) on `sriramakrishna.in` with the variables from `.env.example`, using `WORDPRESS_URL=https://cms.sriramakrishna.in`.
-4. Optional: have WordPress call `POST /api/revalidate/?secret=…` with `{"slug":"…","type":"post"}` on publish, for instant updates. Otherwise content refreshes every `WORDPRESS_REVALIDATE_SECONDS` (default 300).
-5. The menu lives in `src/lib/site.ts`, because WordPress menus aren't in the public API. It mirrors the live menu, minus "Audio" and "Video", which point to `#`.
+The root domain `sriramakrishna.in` (the address Google has indexed) serves this site from Vercel. WordPress keeps running on Hostinger at `www.sriramakrishna.in`, for the admin, the API and uploads. Do the steps in this order:
 
-Comments: the existing comments are shown read-only, threaded, under each post and page (`src/components/Comments.tsx`). Posting new comments from this site is not built yet; the section says "Comments are closed."
+1. **WordPress plugin.** Upload `wordpress/mu-plugins/headless-frontend.php` to `wp-content/mu-plugins/` on Hostinger. Create the folder if it doesn't exist. It is active as soon as it's uploaded.
+2. **Vercel environment variables** (Production and Preview), then redeploy:
+   - `WORDPRESS_URL=https://www.sriramakrishna.in`
+   - `NEXT_PUBLIC_SITE_URL=https://sriramakrishna.in`
+   - `REVALIDATE_SECRET=<random>`
+   - `WORDPRESS_REVALIDATE_SECONDS` is optional; empty means 300.
+3. **Vercel domain.** Add `sriramakrishna.in` to the project. Do not add `www`.
+4. **DNS (Hostinger → Domains → DNS):**
+   - `www`: replace the CNAME (→ `sriramakrishna.in`) with **A `145.79.210.98`** and **AAAA `2a02:4780:11:2054:0:28ef:bfdd:9`**, so `www` stays on Hostinger.
+   - `@` (root): replace the A/AAAA records with the values Vercel shows when you add the domain (usually **A `76.76.21.21`**, and no AAAA).
+   - Leave the MX records (email) and everything else unchanged.
+5. **WordPress → Settings → General**, once the root domain shows the new site:
+   - WordPress Address (URL): `https://www.sriramakrishna.in`
+   - Site Address (URL): `https://sriramakrishna.in` (unchanged)
+
+   Links WordPress generates keep pointing at the root domain. Anyone opening a page on `www` is redirected to the same page on the root domain, so each page keeps a single address for search engines. The admin is at `https://www.sriramakrishna.in/wp-admin/`, and `/wp-admin/` on the root domain redirects there.
+6. **Check:** `https://sriramakrishna.in/api/wp-health/?secret=…` shows `"ok": true`; `/feed/` and `/wp-sitemap.xml` load; a post opened on `www` redirects to the root domain.
+7. **SSL on Hostinger:** after a day, check in hPanel that `www.sriramakrishna.in` still has a valid certificate. If the certificate also covered the root domain, its renewal may fail now that the root points to Vercel; reissue it for `www` only.
+
+Other notes:
+- WordPress's "Preview" and "View post" buttons open the root domain. Published content shows up within `WORDPRESS_REVALIDATE_SECONDS`, or immediately with the publish webhook (`POST /api/revalidate/?secret=…`). Previews of unpublished drafts are not supported.
+- The menu lives in `src/lib/site.ts`, because WordPress menus aren't in the public API.
 
 ## Project layout
 

@@ -11,6 +11,14 @@ export const isMockMode = !WP_URL;
 
 export const wordpressOrigin = WP_URL;
 
+/**
+ * Sent when this app fetches WordPress-rendered pages (feeds, sitemaps, page
+ * HTML). With WordPress's Site Address set to this site, WordPress would
+ * otherwise redirect those requests back here; the companion plugin in
+ * wordpress/mu-plugins/ turns that redirect off when it sees this header.
+ */
+export const HEADLESS_HEADERS = { "X-Headless-Frontend": "1" };
+
 /** Absolute URL of a WordPress asset such as "/wp-content/uploads/…", for next/image. */
 export function wpAsset(path: string): string {
   return `${WP_URL || "https://sriramakrishna.in"}${path}`;
@@ -269,6 +277,9 @@ export async function getElementorStyles(entry: WPEntry): Promise<{ links: strin
   try {
     // Ask WordPress itself, whatever domain its permalinks use.
     const res = await fetchWithRetry(`${WP_URL}${new URL(entry.link).pathname}`, {
+      headers: HEADLESS_HEADERS,
+      // Never follow a redirect: it could lead back to this site and loop.
+      redirect: "manual",
       next: { revalidate: REVALIDATE, tags: ["wordpress", `html:${entry.id}`] },
     });
     if (!res.ok) throw new Error(String(res.status));
